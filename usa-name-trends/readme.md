@@ -31,7 +31,7 @@ Por otra parte, en este archivo el análisis se centra en los nombres elegidos p
     - Uso a lo largo del territorio.
 
 ## Screenshots
-- BBuscador por década
+- Buscador por década
 
 <img src="images/search-decada.png" alt="Buscador por década" width="600"/>
 
