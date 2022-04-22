@@ -1,6 +1,8 @@
 # Tendencias de Nombres en Estados Unidos (1910-2020)
 Este proyecto se basa en la construcción de un buscador de tendencias en los nombres de personas en los Estados Unidos, desde el 1910 a la actualidad, a partir de los datos públicos disponibles en [USA Name Data](https://www.kaggle.com/datasets/datagov/usa-names?select=usa_1910_current) (*Dataset* de *BigQuery*).
 
+El mismo se puede encontrar en: [WebApp Tendencia Nombres USA]()
+
 ## Funcionalidad
 Esta pequeña aplicación consta de 2 buscadores:
 - **Buscador de nombres tendencia de cada década:** simplemente se selecciona una década e indicará los 5 nombres masculinos y femeninos más recurrentes en la misma.
@@ -12,10 +14,10 @@ ToDo's:
 
 ## Contenido adicional. Estructura.
 Además de la pequeña aplicación interactiva, este proyecto cuenta con un análisis completo de los datos en cuestión. Para una mejor comprensión de este análisis, se dividió al mismo en 2 archivos:
-- *data_analysis_overview*
+- *demographics_analysis*
 - *names_analysis*
 
-### Data Analysis Overview
+### Demographics Analysis
 En este archivo se puede encontrar un análisis demográfico exhaustivo con todo tipo de gráficos, echando luz sobre distintos aspectos de la natalidad en Estados Unidos, a lo largo de los años y de su geografía. Se pueden observar cuestiones como:
 - Cantidad de nacimientos registrados desde 1910.
     - Distinción por género. Acumulado total y evolución anual.
@@ -33,11 +35,11 @@ Por otra parte, en este archivo el análisis se centra en los nombres elegidos p
 ## Screenshots
 - Buscador por década
 
-<img src="images/search-decada.png" alt="Buscador por década" width="600"/>
+<img src="app/screenshots/year_search.png" alt="Buscador por década" width="600"/>
 
 - Buscador por nombre
 
-<img src="images/search-nombre.png" alt="Buscador por nombre" width="600"/>
+<img src="app/images/name_search.png" alt="Buscador por nombre" width="600"/>
 
 
 ## Tecnologías aplicadas
