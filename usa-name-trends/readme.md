@@ -1,7 +1,7 @@
 # Tendencias de Nombres en Estados Unidos (1910-2020)
 Este proyecto se basa en la construcción de un buscador de tendencias en los nombres de personas en los Estados Unidos, desde el 1910 a la actualidad, a partir de los datos públicos disponibles en [USA Name Data](https://www.kaggle.com/datasets/datagov/usa-names?select=usa_1910_current) (*Dataset* de *BigQuery*).
 
-El mismo se puede encontrar en: [WebApp Tendencia Nombres USA]()
+El mismo se puede encontrar en: [WebApp Tendencia Nombres USA](https://share.streamlit.io/livramentoluciano/data-science-practices/main/usa-name-trends/app/app.py)
 
 ## Funcionalidad
 Esta pequeña aplicación consta de 2 buscadores:
