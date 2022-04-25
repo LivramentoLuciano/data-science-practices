@@ -1,5 +1,5 @@
 from google.cloud import bigquery
-import pandas as pd
+import utils
 
 # Dataset:  bigquery-public-data -> usa_names -> usa_1910_current
 # cliente bigquery para consultar database y config cuota segura
@@ -20,15 +20,15 @@ def get_top_names_decade(decade):
     top_names_decade_query =  '''
     SELECT name AS Nombre, 
            gender AS Genero,
-           SUM(number) AS NumUsosDecada, 
+           SUM(number) AS Usos, 
            RANK() OVER (
                PARTITION BY gender
                ORDER BY SUM(number) DESC
-           ) AS RankingDecada
+           ) AS Ranking
     FROM `bigquery-public-data.usa_names.usa_1910_current`
     WHERE year >= @decade AND year < (@decade + 10)
     GROUP BY name, gender
-    ORDER BY RankingDecada ASC
+    ORDER BY Ranking ASC
     LIMIT 10
     '''  
     # para pasaje de parametros variables a la query
@@ -66,7 +66,7 @@ def get_top_names_decade_evolution(decade):
         LIMIT 10
     )
 
-    SELECT n.year, n.name, n.gender, SUM(n.number) AS year_number    
+    SELECT n.year, n.name, n.gender, SUM(n.number) AS year_number
     FROM `bigquery-public-data.usa_names.usa_1910_current` AS n
     RIGHT JOIN top_names_decade AS tnd
         ON tnd.name = n.name AND tnd.gender = n.gender
@@ -78,10 +78,6 @@ def get_top_names_decade_evolution(decade):
     
     top_names_decade_evolution_query_job = client.query(top_names_decade_evolution_query, job_config=safe_config)
     top_names_decade_evolution = top_names_decade_evolution_query_job.to_dataframe()
-    
-    # pivoteo data para poder graficar, porque st.line_chart no admite 'hue'
-    # Ojo, no funcionarioasi hay mismo nombre con 2 generos (pero casi imposible entre los Top)
-    # top_names_decade_evolution=top_names_decade_evolution.pivot('Anio', 'Nombre', 'NumUsosAnio')
 
     return top_names_decade_evolution 
 
@@ -133,35 +129,6 @@ def get_selected_name_evolution(search_name):
     
     return selected_name_evolution
 
-def get_name_highlights(name_evolution):
-    ''' Devuelve los valores destacados respecto a la evolución del uso de un nombre en el tiempo: 
-    Cuál fue el año de su máximo uso y mejor ranking
-    
-    >> get_name_highlights(name_evolution)
-    'El nombre John tuvo su máximo uso (29200) en el año 1945 y su mejor ubicación en el ranking (3°) en el año 1960'
-    '''
-    name_evolution.set_index('year', inplace=True)
-    
-    max_uses = name_evolution.year_number.max()
-    best_rank = name_evolution.year_ranking.min()
-    # idxmax() devuelve solo la primer ocurrencia
-    max_uses_year = name_evolution.year_number.idxmax()
-    best_rank_year = name_evolution.year_ranking.idxmin()
-
-    # ToDo: falla en Streamlit al intentar printear Dataframe con valores 'lista'
-    # max_uses_year = list(name_evolution[name_evolution.year_number == max_uses].index.values)
-    # best_rank_year = list(name_evolution[name_evolution.year_ranking == best_rank].index.values)
-    
-    highlights = pd.DataFrame(data={
-        'Valor': [max_uses, best_rank],
-        'Año': [max_uses_year, best_rank_year],  
-    }, index=['Máximo uso', 'Mejor ranking'])
-    
-    return highlights
-
-
-# ToDo: resolver to_decades()
-# Por ahora, harcodeo
 def get_data_decades():
     ''' Devuelve los años sobre los que hay información disponible en el Dataset USA_Names.
     En particular, en forma de "décadas".
@@ -180,18 +147,5 @@ def get_data_decades():
     years_query_job = client.query(years_query, job_config=safe_config)
     years = years_query_job.to_dataframe()
     
-    data_decades = to_decades(years.year.to_list())
+    data_decades = utils.to_decades(years.year.to_list())
     return data_decades
-
-def to_decades(years):
-    ''' Devuelve un listado de decadas (1910, 1920, ...) a partir de un listado de años recibidos
-    [1911,1912,1914, 1925,...]
-    
-    @args:
-        years: lista de años sobre los que se calculara las decadas a las que hace alusión
-    
-    >> to_decades([1911,1912,1914, 1925,...])
-    [1910, 1920]
-    '''
-    decades = [1910, 1920, 1930,1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
-    return decades

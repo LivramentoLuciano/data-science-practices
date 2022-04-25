@@ -1,15 +1,12 @@
 import streamlit as st
 import pandas as pd
-from google.cloud import bigquery
-import matplotlib.pyplot as plt
 import altair as alt
 import queries
+import utils
 
 st.set_page_config(layout='wide')
 
 # estado para grafico de search_by_name
-# if 'search_name_result' not in st.session_state:
-#     st.session_state.search_name_result = None
 if 'input_name' not in st.session_state:
     st.session_state.input_name = ''
 
@@ -42,7 +39,7 @@ if page == 'Por década':
         'Seleccione una década',
         queries.get_data_decades()
     )
-
+    
     # contenedor de datos y msjs info
     dash_placeholder = st.empty()
 
@@ -125,4 +122,4 @@ else:
 
                 # # highlights del nombre
                 st.write('**Valores destacados**')
-                st.dataframe(queries.get_name_highlights(name_progress))
+                st.dataframe(utils.get_name_highlights(name_progress))
