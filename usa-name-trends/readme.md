@@ -39,7 +39,7 @@ Por otra parte, en este archivo el análisis se centra en los nombres elegidos p
 
 - Buscador por nombre
 
-<img src="app/images/name_search.png" alt="Buscador por nombre" width="600"/>
+<img src="app/screenshots/name_search.png" alt="Buscador por nombre" width="600"/>
 
 
 ## Tecnologías aplicadas

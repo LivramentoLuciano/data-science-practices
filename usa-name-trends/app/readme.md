@@ -20,7 +20,7 @@ ToDo's:
 
 - Buscador por nombre
 
-<img src="images/name_search.png" alt="Buscador por nombre" width="600"/>
+<img src="screenshots/name_search.png" alt="Buscador por nombre" width="600"/>
 
 ## Tecnología
 Para desarrollar esta aplicación web se utilizó la librería `Streamlit` de Python, la cual permite construir pequeñas apps que faciliten la visualización de datos en proyectos de Data Science y Machine Learning.
@@ -34,3 +34,4 @@ Para desarrollar esta aplicación web se utilizó la librería `Streamlit` de Py
     - https://github.com/streamlit/streamlit/issues/3386
     - https://discuss.streamlit.io/t/st-line-chart/767/3
     - https://altair-viz.github.io/user_guide/encoding.html
+- Tutorial para deploy mediante Streamlit, con Bigquery integrado: [https://docs.streamlit.io/knowledge-base/tutorials/databases/bigquery]

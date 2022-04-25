@@ -1,9 +1,16 @@
 from google.cloud import bigquery
+from google.oauth2 import service_account
+import streamlit as st
 import utils
 
 # Dataset:  bigquery-public-data -> usa_names -> usa_1910_current
 # cliente bigquery para consultar database y config cuota segura
-client = bigquery.Client()
+# Credenciales (necesario para deploy)
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+
+client = bigquery.Client(credentials=credentials)
 safe_config = bigquery.QueryJobConfig(maximum_bytes_billed=10**10)
 
 def get_top_names_decade(decade):
