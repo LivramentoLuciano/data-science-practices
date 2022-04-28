@@ -136,6 +136,34 @@ def get_selected_name_evolution(search_name):
     
     return selected_name_evolution
 
+# Para grafico choropleth (mapa calor geografico)
+# uso de un nombre a lo largo de estados unidos (para un determinado año)
+def get_name_use_by_state(name, year=2020):
+    # group by state por si repite nombre en distinto genero
+    name_use_by_state_query = '''
+    SELECT year,
+           state,
+           name,
+           SUM(number) AS state_number,
+    FROM `bigquery-public-data.usa_names.usa_1910_current`
+    WHERE name = @name AND year = @year
+    GROUP BY year, state, name
+    ORDER BY state ASC
+    '''
+
+    # formato de los nombres en la db
+    name = name.capitalize()
+
+    safe_config.query_parameters = [
+        bigquery.ScalarQueryParameter('name', "STRING", name),
+        bigquery.ScalarQueryParameter('year', "INT64", year),
+    ]
+
+    name_use_by_state_query_job = client.query(name_use_by_state_query, job_config=safe_config)
+    name_use_by_state = name_use_by_state_query_job.to_dataframe()
+
+    return name_use_by_state
+
 def get_data_decades():
     ''' Devuelve los años sobre los que hay información disponible en el Dataset USA_Names.
     En particular, en forma de "décadas".

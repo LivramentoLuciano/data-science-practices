@@ -82,6 +82,11 @@ else:
     if st.session_state.input_name:
         charts_placeholder.info('Buscando...')
         name_progress = queries.get_selected_name_evolution(st.session_state.input_name)
+        charts_placeholder.empty()
 
         # Dashboard: Graficos Uso y Ranking en el tiempo + Highlights
-        dashboards.name_progress_dasboard(charts_placeholder, name_progress)
+        # dashboards.name_progress_dasboard(charts_placeholder, name_progress)
+
+        # Grafico Geografico del uso del nombre en la actualidad
+        name_data = queries.get_name_use_by_state(st.session_state.input_name)
+        dashboards.usa_choropleth_name(name_data)
