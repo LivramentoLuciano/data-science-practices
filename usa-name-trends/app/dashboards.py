@@ -3,8 +3,8 @@ import altair as alt
 import utils
 import pandas as pd
 import numpy as np
-# import plotly.graph_objects as go
-# import matplotlib.pyplot as plt
+import folium
+from streamlit_folium import folium_static
 
 def decade_dashboard(placeholder, top_names, top_names_evolution):
     if top_names.empty and top_names_evolution.empty:
@@ -52,9 +52,18 @@ def name_progress_dasboard(placeholder, name_progress):
             st.dataframe(utils.get_name_highlights(name_progress))
 
 
-# para choropleth (heatmap geografico)
-USA_STATES_LOCATION_PATH = './data/statelatlong.csv'
-usa_states_location = pd.read_csv(USA_STATES_LOCATION_PATH)
+
+def get_usa_center():
+    latitude = 40
+    longitude = -95
+    return (latitude, longitude)
+
+# geoJson de Estados Unidos (limites de cada Estado)
+url = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data'
+state_geo = f'{url}/us-states.json'
+state_unemployment = f"{url}/US_Unemployment_Oct2012.csv"
+state_data = pd.read_csv(state_unemployment)
+
 
 # Mapa de calor geografico (Estados Unidos). 
 # Uso de determinado nombre a lo largo del pais
@@ -64,63 +73,70 @@ def usa_choropleth_name(name_data):
     if name_data.empty:
         map_container.info('No hay información disponible!')
     else:
-        map_container.write('**Cantidad de usos a lo largo del tiempo**')
-        # Asignar lat y long a los datos del nombre por Estado
-        usa_states_location.rename(columns={'State': 'state'}, inplace=True)
-        name_data_latlong = pd.merge(name_data, usa_states_location, on='state')
+        map_container.write('**Uso a lo largo de todo el país**')
+
+        # name_data = name_data[['state', 'state_number']]
+        # name_data.rename(columns={'state': 'State'}, inplace=True)
+
+        # show_choropleth(name_data)
+        m = folium.Map(location=get_usa_center(), zoom_start=4)
+
+        custom_scale = (name_data['state_number'].quantile((0,0.2,0.4,0.6,0.8,1))).tolist()
+
+        folium.Choropleth(
+            geo_data=state_geo,
+            data=name_data,
+            columns=["state", "state_number"],
+            key_on="feature.id",
+            fill_color="YlOrRd",
+            fill_opacity=0.7,
+            line_opacity=.1,
+            legend_name='Número de usos',
+            threshold_scale=custom_scale
+        ).add_to(m)
+
+        # folium.LayerControl().add_to(m)
         
-        map_container.write(name_data_latlong)
-        # map_container.map(df)
+        folium_static(m)
+
+
+def usa_choropleth_name_ranking(name_data):
+    map_container = st.container()    
+
+    if name_data.empty:
+        map_container.info('No hay información disponible!')
+    else:
+        map_container.write('**Uso a lo largo de todo el país**')
+
+        # name_data = name_data[['state', 'state_number']]
+        # name_data.rename(columns={'state': 'State'}, inplace=True)
+        # show_choropleth(name_data)
+
+        m = folium.Map(location=get_usa_center(), zoom_start=4)
+
+        custom_scale = (data['state_number'].quantile((0,0.2,0.4,0.6,0.8,1))).tolist()
+
+        folium.Choropleth(
+            geo_data=state_geo,
+            data=data,
+            columns=["state", "state_number"],
+            key_on="feature.id",
+            fill_color="YlOrRd",
+            fill_opacity=0.7,
+            line_opacity=.1,
+            legend_name='Número de usos',
+            threshold_scale=custom_scale
+        ).add_to(m)
+
+        # folium.LayerControl().add_to(m)
+        
+        folium_static(m)        
 
 
 
-# def global_choropleth(data):
-    # fig = go.Figure(data = go.Choropleth(
-    #     locations=
-    # ))
 
-    # fig = go.Figure(data=go.Choropleth(
-    #     locations = filtered_data['countryterritorycode'],
-    #     z = np.log10(filtered_data['cases']),
-    #     # text = ['Country: {}<br>Number of new cases: {} <br> Number of deaths: {} <br>'.format(filtered_data['countriesandterritories'].iloc[i],
-    #     #                                                                                     filtered_data['cases'].iloc[i],
-    #     #                                                                                     filtered_data['deaths'].iloc[i],) \
-    #     #         for i in range(len(filtered_data['cases']))
-    #     #         ],
-    #     colorscale = 'Bluered_r',
-    #     autocolorscale=False,
-    #     reversescale=True,
-    #     marker_line_color='darkgray',
-    #     marker_line_width=0.5,
-    #     colorbar = dict(len=0.75,
-    #                     title='New Cases of Coronavirus',
-    #                     tickprefix='1.e',
-    #                     ticktext=[str(x) for x in np.linspace(np.min(filtered_data['cases']), 
-    #                                             np.max(filtered_data['cases']),
-    #                                         num=10)])
-    #     # colorbar_title = 'New Cases of Coronavirus'
-    # ))
 
-    # fig.update_layout(
-    #     title_text='Cases of Coronavirus Globally',
-    #     autosize=False,
-    #     geo=dict(
-    #         showframe=False,
-    #         showcoastlines=False,
-    #         projection_type='equirectangular'
-    #     ),
-    #     annotations = [dict(
-    #         x=0.55,
-    #         y=0.1,
-    #         xref='paper',
-    #         yref='paper',
-    #         text='Source: <a href="https://opendata.ecdc.europa.eu/covid19/casedistribution/csv">\
-    #             European Centre for Disease Prevention and Control</a>',
-    #         showarrow = False
-    #     )],
-    #     margin = dict(l=10,r=50, b=40, t=40, pad=4),
-    #     width=800,
-    #     height=600,
-    # )
 
-    # st.pyplot(fig)
+# para choropleth (heatmap geografico)
+# USA_STATES_LOCATION_PATH = './data/statelatlong.csv'
+# usa_states_location = pd.read_csv(USA_STATES_LOCATION_PATH)
