@@ -95,7 +95,7 @@ def get_names_evolution(names):
     Dataframe(year, name, year_number, year_ranking)
     '''
     names_evolution_query = '''
-    WITH all_names_year_number AS (
+    WITH all_names_annual_use AS (
         SELECT year, 
                name,
                SUM(number) AS year_number,
@@ -108,9 +108,8 @@ def get_names_evolution(names):
     )
     
     SELECT year, name, year_number, year_ranking
-    FROM all_names_year_number
+    FROM all_names_annual_use
     WHERE name IN UNNEST(@names)
-    GROUP BY year, name, year_number, year_ranking
     ORDER BY year, year_number DESC
     '''
    
@@ -137,18 +136,28 @@ def get_selected_name_evolution(search_name):
     return selected_name_evolution
 
 # Para grafico choropleth (mapa calor geografico)
-# uso de un nombre a lo largo de estados unidos (para un determinado año)
+# Uso y ranking por Estado para un determinado año
 def get_name_use_by_state(name, year=2020):
     # group by state por si repite nombre en distinto genero
     name_use_by_state_query = '''
-    SELECT year,
-           state,
-           name,
-           SUM(number) AS state_number,
-    FROM `bigquery-public-data.usa_names.usa_1910_current`
-    WHERE name = @name AND year = @year
-    GROUP BY year, state, name
-    ORDER BY state ASC
+    WITH year_names_use_by_state AS (
+        SELECT year,
+               state,
+               name,
+               SUM(number) AS uses,
+               RANK() OVER (
+                   PARTITION BY state
+                   ORDER BY SUM(number) DESC
+               ) AS ranking            
+        FROM `bigquery-public-data.usa_names.usa_1910_current`
+        WHERE year = @year
+        GROUP BY state, name, year
+        ORDER BY ranking ASC, state ASC        
+    )
+
+    SELECT year, state, name, uses, ranking          
+    FROM year_names_use_by_state
+    WHERE name = @name
     '''
 
     # formato de los nombres en la db

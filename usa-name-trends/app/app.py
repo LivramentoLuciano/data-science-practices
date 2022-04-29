@@ -82,11 +82,13 @@ else:
     if st.session_state.input_name:
         charts_placeholder.info('Buscando...')
         name_progress = queries.get_selected_name_evolution(st.session_state.input_name)
-        charts_placeholder.empty()
 
-        # Dashboard: Graficos Uso y Ranking en el tiempo + Highlights
-        # dashboards.name_progress_dasboard(charts_placeholder, name_progress)
+        if name_progress.empty:
+            charts_placeholder.info('El nombre {} no se encuentra en la lista'.format(st.session_state.input_name.capitalize()))
+        else:
+            # Dashboard: Graficos Uso y Ranking en el tiempo + Highlights
+            dashboards.name_progress_dasboard(charts_placeholder, name_progress)
 
-        # Grafico Geografico del uso del nombre en la actualidad
-        name_data = queries.get_name_use_by_state(st.session_state.input_name)
-        dashboards.usa_choropleth_name(name_data)
+            # Grafico Geografico del uso del nombre en la actualidad
+            name_by_state_data = queries.get_name_use_by_state(st.session_state.input_name)
+            dashboards.name_ranking_choropleth(name_by_state_data)
