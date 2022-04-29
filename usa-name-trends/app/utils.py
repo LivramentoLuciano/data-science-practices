@@ -23,7 +23,7 @@ def get_name_highlights(name_evolution):
     highlights = pd.DataFrame(data={
         'value': [max_uses, best_rank],
         'year': [max_uses_year, best_rank_year],  
-    }, index=['max_use', 'best_ranking'])
+    }, index=['max_uses', 'best_ranking'])
     
     return highlights
 

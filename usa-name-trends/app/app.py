@@ -19,9 +19,6 @@ def load_data_decade_top(decade):
 def handle_search_name(name):
     st.session_state.input_name = name
 
-def show_dashboard_decade(top_names, top_names_evolution, placeholder):
-    dashboards.decade_dashboard(placeholder, top_names, top_names_evolution)
-
 def load_data_name_evolution(name):
     return queries.get_selected_name_evolution(name)
 
@@ -30,6 +27,9 @@ def load_data_name_by_state(name):
 
 def show_dashboard_name(name_progress, name_by_state, placeholder):
     dashboards.name_dashboard(name_progress, name_by_state, placeholder)
+
+def show_dashboard_decade(top_names, top_names_evolution, placeholder):
+    dashboards.decade_dashboard(top_names, top_names_evolution, placeholder)
 
 st.header("Tendencias de Nombres en Estados Unidos 1910-2020")
 

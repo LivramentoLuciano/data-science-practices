@@ -6,36 +6,65 @@ import numpy as np
 import folium
 from streamlit_folium import folium_static
 
-def get_uses_chart(data):
+def get_uses_chart(name_progress):
+    ''' Altair chart de evolución del uso de un nombre a lo largo del tiempo.
+    Incluye anotaciones interactivas.
+    '''
+    max_uses, max_uses_year = utils.get_name_highlights(name_progress).loc['max_uses']
+    highlight = [(max_uses_year, f"Máximo Uso: {max_uses}, año {max_uses_year}")]
+
+    uses_chart = get_base_time_chart(
+        name_progress,
+        y_column='year_number',
+        y_label='Cantidad de Usos',
+        y_tooltip_label='Uso',
+        highlight=highlight
+    )
+    return uses_chart    
+
+def get_ranking_chart(name_progress):
+    ''' Altair chart de evolución del ranking de un nombre a lo largo del tiempo.
+    Incluye anotaciones interactivas.
+    '''    
+    best_ranking, best_ranking_year = utils.get_name_highlights(name_progress).loc['best_ranking']
+    highlight = [(best_ranking_year, f"Mejor Ranking: {best_ranking}, año {best_ranking_year}")]
+
+    ranking_chart = get_base_time_chart(
+        name_progress,
+        y_column='year_ranking',
+        y_label='Puesto en el Ranking',
+        y_tooltip_label='Ranking',
+        highlight=highlight
+    )
+    return ranking_chart
+
+# Chart (altair) temporal basico. Interactivo, con anotaciones.
+def get_base_time_chart(data, y_column, y_label,y_tooltip_label, highlight):
     hover = alt.selection_single(
         fields=["year"],
         nearest=True,
         on="mouseover",
         empty="none",
-    )
+    )   
 
     line = alt.Chart(data).mark_line().encode(
         x=alt.X('year', axis=alt.Axis(title='Año')),
-        y=alt.Y('year_number:Q', axis=alt.Axis(title='Cantidad de usos')),
-    )
+        y=alt.Y(f'{y_column}:Q', axis=alt.Axis(title=y_label)),
+    )     
 
     points = line.transform_filter(hover).mark_circle(size=65)
 
     tooltips = alt.Chart(data).mark_rule().encode(
         x="year",
-        y="year_number",
+        y=y_column,
         opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
         tooltip=[
             alt.Tooltip("year", title="Año"),
-            alt.Tooltip("year_number", title="Usos"),
+            alt.Tooltip(y_column, title=y_tooltip_label),
         ],
     ).add_selection(hover)
 
-    # Anotaciones: Valores destacados
-    max_uses, max_uses_year = utils.get_name_highlights(data).loc['max_use']
-
-    ANNOTATIONS = [(max_uses_year, f"Máximo Uso: {max_uses}, año {max_uses_year}")]
-    annotations_df = pd.DataFrame(ANNOTATIONS, columns=["year", "Destacado"])
+    annotations_df = pd.DataFrame(highlight, columns=["year", "Destacado"])
     annotations_df["y"] = 0
 
     annotation_layer = alt.Chart(annotations_df).mark_text(
@@ -48,74 +77,11 @@ def get_uses_chart(data):
 
     return (line + points + tooltips + annotation_layer).interactive()
 
-def get_ranking_chart(data):
-    hover = alt.selection_single(
-        fields=["year"],
-        nearest=True,
-        on="mouseover",
-        empty="none",
-    )
-
-    line = alt.Chart(data).mark_line().encode(
-        x=alt.X('year', axis=alt.Axis(title='Año')),
-        y=alt.Y('year_ranking:Q', axis=alt.Axis(title='Puesto en el Ranking')),
-    )
-
-    points = line.transform_filter(hover).mark_circle(size=65)
-
-    tooltips = alt.Chart(data).mark_rule().encode(
-        x="year",
-        y="year_ranking",
-        opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
-        tooltip=[
-            alt.Tooltip("year", title="Año"),
-            alt.Tooltip("year_ranking", title="Puesto"),
-        ],
-    ).add_selection(hover)
-
-    # Anotaciones: Valores destacados
-    best_ranking, best_ranking_year = utils.get_name_highlights(data).loc['best_ranking']
-
-    ANNOTATIONS = [(best_ranking_year, f"Mejor Ranking: {best_ranking}, año {best_ranking_year}")]
-    annotations_df = pd.DataFrame(ANNOTATIONS, columns=["year", "Destacado"])
-    annotations_df["y"] = 0
-
-    annotation_layer = alt.Chart(annotations_df).mark_text(
-        size=20, text="⬇", dx=-6, dy=-10, align="left"
-    ).encode(
-        x="year",
-        y=alt.Y("y:Q"),
-        tooltip=["Destacado"],
-    ).interactive()    
-
-    return (line + points + tooltips + annotation_layer).interactive()
-
-def decade_dashboard(placeholder, top_names, top_names_evolution):
-    if top_names.empty and top_names_evolution.empty:
-        placeholder.info('No hay información disponible!')
-    else:
-        with placeholder.container():
-            table_col, chart_col = st.columns((4,5))
-
-            # tabla Top 5
-            table_col.write('**Top 5 (masculino y femenino) de la década**')
-            table_col.dataframe(top_names, height=600)
-
-            # Grafico Uso en el tiempo
-            chart_col.write('**Evolución histórica del uso de los nombres del Top 5**')
-
-            top_names_evolution_chart = alt.Chart(
-                top_names_evolution,
-            ).mark_line().encode(
-                x=alt.X('year', axis=alt.Axis(title='Año')),
-                y=alt.Y('year_number:Q', axis=alt.Axis(title='Cantidad de usos')),
-                color='name:N'
-            ).properties(width=600, height=350)
-
-            chart_col.altair_chart(top_names_evolution_chart)
-
-# graficos de la evolucion en el tiempo del nombre
+# Graficos de evolucion en el tiempo de un Nombre (Uso y Ranking)
 def name_progress_charts(name_progress):
+    ''' Container con graficos de la evolución del uso de un nombre 
+    (uso y ranking) a lo largo del tiempo. Incluye anotaciones interactivas.
+    '''
     charts_container = st.container()
     with charts_container: 
         uses, ranking = st.columns(2)                       
@@ -131,18 +97,12 @@ def name_progress_charts(name_progress):
 
     return charts_container
 
-def name_progress_highlights(name_progress):
-    highlights_container = st.container()
-    with highlights_container:
-        # # highlights del nombre
-        st.write('**Valores destacados**')
-        st.dataframe(utils.get_name_highlights(name_progress))
-
-    return highlights_container
-
-# Mapa de calor geografico (Estados Unidos). 
-# Uso de determinado nombre a lo largo del pais
 def name_ranking_choropleth(name_data):
+    ''' Choropleth (mapa de calor geográfico) representando la popularidad (ranking)
+    de un nombre a lo largo del territorio de los Estados Unidos.
+
+    Devuelve un st.container() con titulo + choropleth, o mensaje de 'Info no disponible'
+    '''
     # geoJson de Estados Unidos (limites de cada Estado)
     url = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data'
     usa_geojson = f'{url}/us-states.json'
@@ -178,9 +138,39 @@ def name_ranking_choropleth(name_data):
 
     return map_container  
 
-
 def name_dashboard(name_progress, name_by_state, placeholder):
+    '''Container del Dashboard de una Búsqueda por Nombre
+    Posee un gráfico de evolución del uso del nombre (uso y ranking) 
+    y un choropleth de su uso a lo largo del territorio de USA
+    '''
     with placeholder.container():
         name_progress_charts(name_progress)  
-        name_ranking_choropleth(name_by_state)        
-        # name_progress_highlights(name_progress)
+        name_ranking_choropleth(name_by_state)
+
+def decade_dashboard(top_names, top_names_evolution, placeholder):
+    '''Container del Dashboard de una Búsqueda por Década
+    Posee una tabla con el Top 5 histórico de nombres (masculinos y femeninos)
+    y un gráfico de evolución del uso de estos nombre
+    '''
+    if top_names.empty and top_names_evolution.empty:
+        placeholder.info('No hay información disponible!')
+    else:
+        with placeholder.container():
+            table_col, chart_col = st.columns((4,5))
+
+            # tabla Top 5
+            table_col.write('**Top 5 (masculino y femenino) de la década**')
+            table_col.dataframe(top_names, height=600)
+
+            # Grafico Uso en el tiempo
+            chart_col.write('**Evolución histórica del uso de los nombres del Top 5**')
+
+            top_names_evolution_chart = alt.Chart(
+                top_names_evolution,
+            ).mark_line().encode(
+                x=alt.X('year', axis=alt.Axis(title='Año')),
+                y=alt.Y('year_number:Q', axis=alt.Axis(title='Cantidad de usos')),
+                color='name:N'
+            ).properties(width=600, height=350)
+
+            chart_col.altair_chart(top_names_evolution_chart)
