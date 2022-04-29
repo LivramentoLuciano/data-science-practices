@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import folium
 from streamlit_folium import folium_static
+import urllib, json
 
 def get_uses_chart(name_progress):
     ''' Altair chart de evolución del uso de un nombre a lo largo del tiempo.
@@ -97,16 +98,69 @@ def name_progress_charts(name_progress):
 
     return charts_container
 
+def get_choropleth(name_data):
+    # geoJson de Estados Unidos (limites de cada Estado)
+    url = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data'
+    usa_geojson = f'{url}/us-states.json'
+    
+    # para tooltips
+    json_url = urllib.request.urlopen(usa_geojson)
+    usa_geojson_data = json.loads(json_url.read())
+    # usa_geojson_json = json.load(open(usa_geojson))
+    # st.write(usa_geojson_data)
+
+    # location: usa_center
+    m = folium.Map(location=[40, -95], width=800, height=500, zoom_start=4)
+    custom_threshold = (name_data['ranking'].quantile((0,0.2,0.4,0.6,0.8,1))).tolist()
+
+    folium.Choropleth(
+        geo_data=usa_geojson,
+        data=name_data,
+        columns=["state", "ranking"],
+        key_on="feature.id",
+        fill_color='Blues_r',
+        nan_fill_color='White',
+        fill_opacity=0.7,
+        line_opacity=.1,
+        legend_name='Ranking',
+        threshold_scale=custom_threshold
+    ).add_to(m)
+
+    # Para agregar los tooltips necesita tener la data mergeada con la data del geojson
+    full_data = name_data
+
+    # Agrego tooltips (interactivo)
+    # folium.features.GeoJson(
+    #     data=name_data,
+    #     name='',
+    #     smooth_factor=2,
+    #     style_function=lambda x: {'color':'black','fillColor':'transparent','weight':0.5},
+    #     tooltip=folium.features.GeoJsonTooltip(
+    #         fields=['ranking'],
+    #         aliases=["Ranking:"], 
+    #         localize=True,
+    #         sticky=False,
+    #         labels=True,
+    #         style="""
+    #             background-color: #F0EFEF;
+    #             border: 2px solid black;
+    #             border-radius: 3px;
+    #             box-shadow: 3px;
+    #         """,
+    #         max_width=200,
+    #     ),
+    #     highlight_function=lambda x: {'weight':3,'fillColor':'grey'},
+    # ).add_to(m)
+
+    # folium.LayerControl().add_to(m)
+    return m
+
 def name_ranking_choropleth(name_data):
     ''' Choropleth (mapa de calor geográfico) representando la popularidad (ranking)
     de un nombre a lo largo del territorio de los Estados Unidos.
 
     Devuelve un st.container() con titulo + choropleth, o mensaje de 'Info no disponible'
-    '''
-    # geoJson de Estados Unidos (limites de cada Estado)
-    url = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data'
-    usa_geojson = f'{url}/us-states.json'
-    
+    '''    
     map_container = st.container()
 
     with map_container:
@@ -115,26 +169,8 @@ def name_ranking_choropleth(name_data):
         if name_data.empty:
             st.info('No hay información disponible!')
         else:
-            # location: usa_center
-            m = folium.Map(location=[40, -95], width=800, height=500, zoom_start=4)
-            custom_threshold = (name_data['ranking'].quantile((0,0.2,0.4,0.6,0.8,1))).tolist()
-
-            folium.Choropleth(
-                geo_data=usa_geojson,
-                data=name_data,
-                columns=["state", "ranking"],
-                key_on="feature.id",
-                fill_color='Blues_r',
-                nan_fill_color='White',
-                fill_opacity=0.7,
-                line_opacity=.1,
-                legend_name='Ranking',
-                threshold_scale=custom_threshold
-            ).add_to(m)
-
-            # folium.LayerControl().add_to(m)
-            
-            folium_static(m, width=800, height=500)  
+            choropleth_map = get_choropleth(name_data)
+            folium_static(choropleth_map, width=800, height=500)  
 
     return map_container  
 
