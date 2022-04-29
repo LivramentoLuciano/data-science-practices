@@ -10,7 +10,7 @@ if 'input_name' not in st.session_state:
     st.session_state.input_name = ''
 
 # cargo los top de la decada y su evolucion en el tiempo
-def get_decade_top_data(decade):
+def load_data_decade_top(decade):
     decade_top_names = queries.get_top_names_decade(decade)
     decade_top_names_evolution = queries.get_top_names_decade_evolution(decade)
     return (decade_top_names, decade_top_names_evolution)
@@ -19,6 +19,17 @@ def get_decade_top_data(decade):
 def handle_search_name(name):
     st.session_state.input_name = name
 
+def show_dashboard_decade(top_names, top_names_evolution, placeholder):
+    dashboards.decade_dashboard(placeholder, top_names, top_names_evolution)
+
+def load_data_name_evolution(name):
+    return queries.get_selected_name_evolution(name)
+
+def load_data_name_by_state(name):
+    return queries.get_name_use_by_state(name)
+
+def show_dashboard_name(name_progress, name_by_state, placeholder):
+    dashboards.name_dashboard(name_progress, name_by_state, placeholder)
 
 st.header("Tendencias de Nombres en Estados Unidos 1910-2020")
 
@@ -29,33 +40,31 @@ page = st.sidebar.selectbox(
 
 if page == 'Por década':
     # Buscador por decada
-    st.write('''
-    ### Buscador por década
-    Este permite encontrar los 5 **nombres** femeninos y masculinos **más utilizados en la década indicada**, y su evolución a lo largo del tiempo.
-    ''')
+    st.subheader('Buscador por década')
+    st.write('Este permite encontrar los 5 **nombres** femeninos y masculinos **más utilizados en la década indicada**, \
+        y su evolución a lo largo del tiempo.')
 
     decade = st.selectbox(
         'Seleccione una década',
         queries.get_data_decades()
     )
-    
+
     # contenedor de datos y msjs info
-    dash_placeholder = st.empty()
+    dash_placeholder = st.info('Buscando...')    
 
-    # load data, decada seleccionada
-    dash_placeholder.info('Buscando...')
-    top_names, top_names_evolution = get_decade_top_data(decade)
+    # Cargo data (decada seleccionada)
+    top_names, top_names_evolution = load_data_decade_top(decade)
 
-    # Dashboard: Tabla nombres top y Grafico evolucion en el tiempo
-    dashboards.decade_dashboard(dash_placeholder, top_names, top_names_evolution)
+    # Muestro dashboard: Tabla top names + Grafico de su uso en el tiempo
+    show_dashboard_decade(top_names, top_names_evolution, dash_placeholder)
 
 else:
     # Buscador por Nombre
-    st.write('''
-    ### Buscador por nombre
-    Este nos permite ingresar un nombre y conocer la evolución de su uso a lo largo del tiempo, además del ranking ocupado en comparación con el resto de los nombres.
-    ''')
+    st.subheader('Buscador por nombre')
+    st.write(' Este nos permite ingresar un nombre y conocer la evolución de su uso a lo largo del tiempo,\
+         además del ranking ocupado en comparación con el resto de los nombres.')
 
+    # text-input
     input_name_col, btn_search = st.columns((7,1))
     input_name = input_name_col.text_input(
         'Nombre',
@@ -69,26 +78,20 @@ else:
         args=(input_name,),
         disabled=(not input_name)
     )
-    
-    # Streamlit se redispara en cada cambio en un widget (input, btn)
-    # entonces queda medio event oriented, no necesito tanto el event_handler
-    # Solo utilizo los on_change para actualizar el state.input_name
-    # la carga de los datos en funcion de ese valor, la hago aca directamente
-
-    # contendra los mapas o los mensajes de info
-    charts_placeholder = st.empty()    
+      
     
     # si no esta vacio el input
     if st.session_state.input_name:
-        charts_placeholder.info('Buscando...')
-        name_progress = queries.get_selected_name_evolution(st.session_state.input_name)
+        # Cargo data (evolucion en el tiempo del nombre buscado)
+        dash_placeholder = st.info('Buscando...')
+        name_progress_data = load_data_name_evolution(st.session_state.input_name)
 
-        if name_progress.empty:
-            charts_placeholder.info('El nombre {} no se encuentra en la lista'.format(st.session_state.input_name.capitalize()))
+        # hay info disponible?
+        if name_progress_data.empty:
+            dash_placeholder.info('El nombre {} no se encuentra en la lista'.format(st.session_state.input_name.capitalize()))
         else:
-            # Dashboard: Graficos Uso y Ranking en el tiempo + Highlights
-            dashboards.name_progress_dasboard(charts_placeholder, name_progress)
-
-            # Grafico Geografico del uso del nombre en la actualidad
-            name_by_state_data = queries.get_name_use_by_state(st.session_state.input_name)
-            dashboards.name_ranking_choropleth(name_by_state_data)
+            # Cargo data (Uso del Nombre por Estado)
+            name_by_state_data = load_data_name_by_state(st.session_state.input_name)
+            
+            # Muestro Dashboard: Usos y Ranking, Highlights, Choropleth Ranking
+            show_dashboard_name(name_progress_data, name_by_state_data, dash_placeholder)

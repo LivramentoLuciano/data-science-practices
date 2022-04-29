@@ -36,6 +36,14 @@ Para desarrollar esta aplicación web se utilizó la librería `Streamlit` de Py
     - https://altair-viz.github.io/user_guide/encoding.html
 - Tutorial para deploy mediante Streamlit, con Bigquery integrado: [https://docs.streamlit.io/knowledge-base/tutorials/databases/bigquery]
 
+
+### Sobre Streamlit rerun
+    # Streamlit se redispara en cada cambio en un widget (input, btn)
+    # entonces queda medio event oriented, no necesito tanto el event_handler
+    # Solo utilizo los on_change para actualizar el state.input_name
+    # la carga de los datos en funcion de ese valor, la hago aca directamente
+
+
 ### Sobre Choropleth (Heatmap geografico)
 uso basico, que necesito
 - geojson
