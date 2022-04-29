@@ -8,7 +8,7 @@ def get_name_highlights(name_evolution):
     >> get_name_highlights(name_evolution)
     'El nombre John tuvo su máximo uso (29200) en el año 1945 y su mejor ubicación en el ranking (3°) en el año 1960'
     '''
-    name_evolution.set_index('year', inplace=True)
+    name_evolution = name_evolution.set_index('year')
     
     max_uses = name_evolution.year_number.max()
     best_rank = name_evolution.year_ranking.min()
@@ -21,9 +21,9 @@ def get_name_highlights(name_evolution):
     # best_rank_year = list(name_evolution[name_evolution.year_ranking == best_rank].index.values)
     
     highlights = pd.DataFrame(data={
-        'Valor': [max_uses, best_rank],
-        'Año': [max_uses_year, best_rank_year],  
-    }, index=['Máximo uso', 'Mejor ranking'])
+        'value': [max_uses, best_rank],
+        'year': [max_uses_year, best_rank_year],  
+    }, index=['max_use', 'best_ranking'])
     
     return highlights
 
