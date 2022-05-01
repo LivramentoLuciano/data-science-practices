@@ -27,7 +27,6 @@ def get_name_highlights(name_evolution):
     
     return highlights
 
-
 def to_decades(years):
     ''' Devuelve un listado de decadas (1910, 1920, ...) a partir de un listado de años recibidos
     [1911,1912,1914, 1925,...]
@@ -45,3 +44,24 @@ def to_decades(years):
 
     # convierto a int para poder utilizarlo en mains
     return [int(d) for d in decades]
+
+def add_name_data_to_geojson(base_geojson, name_data):
+    geojson_with_data = base_geojson
+    for feature in geojson_with_data['features']:
+        # Por cada Estado ('id' en el geojson), agrego los valores
+        # de mi dataset a 'properties' (si hay data disponible)
+        state = feature['id']
+        
+        for prop in ['year', 'uses', 'ranking']:
+            if state in list(name_data['state']):
+                state_name_data = name_data[name_data['state']==state]             
+                prop_value = state_name_data[prop].mean()    
+                # state_name_data = state_name_data.iloc[0]
+                # prop_value = state_name_data[prop]
+                # if isinstance(prop_value, np.int64): prop_value = int(prop_value)   
+            else:
+                prop_value = np.NaN
+            
+            feature['properties'][prop] = prop_value
+                
+    return geojson_with_data
