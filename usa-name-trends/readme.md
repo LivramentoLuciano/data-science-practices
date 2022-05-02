@@ -5,8 +5,8 @@ El mismo se puede encontrar en: [WebApp Tendencia Nombres USA](https://share.str
 
 ## Funcionalidad
 Esta pequeña aplicación consta de 2 buscadores:
-- **Buscador de nombres tendencia de cada década:** simplemente se selecciona una década e indicará los 5 nombres masculinos y femeninos más recurrentes en la misma.
-- **Buscador por nombre:** por medio de este se puede ingresar un nombre y el programa nos mostrará la evolución de su uso a lo largo del tiempo, tanto en cantidad como en ranking correspondiente (cantidad en comparación con el resto de los nombres del mismo año).
+- **Buscador de nombres tendencia de cada década:** simplemente se selecciona una década e indicará los 5 nombres masculinos y femeninos más recurrentes en la misma, como así también la evolución histórica de su uso.
+- **Buscador por nombre:** por medio de este se puede ingresar un nombre y el programa nos mostrará la evolución de su uso a lo largo del tiempo, tanto en cantidad como en ranking correspondiente (uso en comparación con el resto de los nombres del mismo año). Además, se presenta un mapa de calor geográfico en el cual se visualiza la popularidad del nombre en cada uno de los estados de USA, en la actualidad.
 
 ToDo's: 
 - Timelapse: gráfico dinámico con el ranking top 5 de nombres tendencia a lo largo del tiempo (que se pueda observar como cada nombre va bajando/subiendo en el ranking al pasar los años, o bien como nuevos nombres aparecen en el ranking).
@@ -39,7 +39,9 @@ Por otra parte, en este archivo el análisis se centra en los nombres elegidos p
 
 - Buscador por nombre
 
-<img src="app/screenshots/name_search.png" alt="Buscador por nombre" width="600"/>
+<img src="screenshots/name_search_a.png" alt="Buscador por nombre" width="600"/>
+
+<img src="screenshots/name_search_b.png" alt="Buscador por nombre" width="600"/>
 
 
 ## Tecnologías aplicadas

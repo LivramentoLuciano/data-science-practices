@@ -171,6 +171,7 @@ def name_dashboard(name_progress, name_by_state, placeholder):
     y un choropleth de su uso a lo largo del territorio de USA
     '''
     with placeholder.container():
+        st.write('#### Resultados:')
         name_progress_charts(name_progress)  
         name_ranking_choropleth(name_by_state)
 
@@ -179,10 +180,12 @@ def decade_dashboard(top_names, top_names_evolution, placeholder):
     Posee una tabla con el Top 5 histórico de nombres (masculinos y femeninos)
     y un gráfico de evolución del uso de estos nombre
     '''
-    if top_names.empty and top_names_evolution.empty:
-        placeholder.info('No hay información disponible!')
-    else:
-        with placeholder.container():
+    with placeholder.container():
+        if top_names.empty and top_names_evolution.empty:
+            st.write('#### Resultados:')
+            st.info('No hay información disponible!')
+        else:
+            st.write('#### Resultados:')
             table_col, chart_col = st.columns((4,5))
 
             # tabla Top 5
