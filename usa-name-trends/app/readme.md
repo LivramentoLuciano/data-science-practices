@@ -14,6 +14,10 @@ ToDo's:
 
 
 ## Screenshots
+- Video app
+
+https://user-images.githubusercontent.com/27143242/166294734-d035791f-3d44-41a1-8d30-cf47a59a4352.mp4
+
 - Buscador por década
 
 <img src="screenshots/year_search.png" alt="Buscador por década" width="600"/>
