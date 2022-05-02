@@ -33,6 +33,10 @@ Por otra parte, en este archivo el análisis se centra en los nombres elegidos p
     - Uso a lo largo del territorio.
 
 ## Screenshots
+- Video App
+
+https://user-images.githubusercontent.com/27143242/166303971-ceddcfde-3e60-467d-9753-9514c665f1d6.mp4
+
 - Buscador por década
 
 <img src="app/screenshots/year_search.png" alt="Buscador por década" width="600"/>
